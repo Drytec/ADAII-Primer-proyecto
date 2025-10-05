@@ -1,7 +1,7 @@
 class Subject:
-    def __init__(self, code, quote):
+    def __init__(self, code, quota):
         self.code = code
-        self.quote = quote
+        self.quota = quota
 
 
 class Student:
