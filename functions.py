@@ -6,7 +6,7 @@ def dissatisfaction(student, studentAssignation):
 
     for request in requests:
         if request not in assignations:
-            unassignedPrioritySum += request.prioriy
+            unassignedPrioritySum += request.priority
 
     return (1 - len(assignations) / len(requests)) * (
         unassignedPrioritySum / priorityCapacity

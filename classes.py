@@ -8,7 +8,7 @@ class Student:
     def __init__(self, code, requests):
         self.code = code
         self.requests = requests
-        self.priorityCapacity = 3 * requests.length - 1
+        self.priorityCapacity = 3 * len(requests) - 1
 
 
 class Request:
