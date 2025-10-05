@@ -1,13 +1,13 @@
-
-
 class Materia:
     def __init__(self, codigo, cupo):
         self.codigo = codigo
         self.cupo = cupo
-    def restarCupo(self):
+
+    def restar_cupo(self):
         if self.cupo > 0:
             self.cupo -= 1
         return self.cupo
+
 
 class Estudiante:
     def __init__(self, codigo, solicitudes):
@@ -15,8 +15,7 @@ class Estudiante:
         self.solicitudes = solicitudes
 
     def __str__(self):
-        return f'{self.codigo} {self.solicitudes}'
+        return f"{self.codigo} {self.solicitudes}"
 
-    def prioridadTotal(self):
-        return (len(self.solicitudes)* 3)-1
-
+    def prioridad_total(self):
+        return (len(self.solicitudes) * 3) - 1
