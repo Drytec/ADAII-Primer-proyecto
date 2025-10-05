@@ -1,12 +1,7 @@
-def dissatisfaction(student, studentAssignation):
+def dissatisfaction(student, assignations):
     priorityCapacity = student.priorityCapacity
     requests = student.requests
-    assignations = studentAssignation.requests
-    unassignedPrioritySum = 0
-
-    for request in requests:
-        if request not in assignations:
-            unassignedPrioritySum += request.priority
+    unassignedPrioritySum = sum(r.priority for r in requests if r not in assignations)
 
     return (1 - len(assignations) / len(requests)) * (
         unassignedPrioritySum / priorityCapacity
@@ -14,9 +9,8 @@ def dissatisfaction(student, studentAssignation):
 
 
 def generalDissatisfaction(students, studentsAssignations):
-    dissatisfactionSum = 0
-
-    for student, studentAssignation in zip(students, studentsAssignations):
-        dissatisfactionSum += dissatisfaction(student, studentAssignation)
+    dissatisfactionSum = sum(
+        dissatisfaction(s, a.requests) for s, a in zip(students, studentsAssignations)
+    )
 
     return dissatisfactionSum / len(students)

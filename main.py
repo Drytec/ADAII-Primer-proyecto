@@ -1,6 +1,7 @@
 from classes import Subject, Student, Request
 from functions import dissatisfaction, generalDissatisfaction
 
+
 # Materias
 s1 = Subject("m1", 3)
 s2 = Subject("m2", 4)
@@ -66,10 +67,3 @@ sta5 = Student("e5", [a8, a9])
 
 # Lista de asignaciones
 A = [sta1, sta2, sta3, sta4, sta5]
-
-print("1. Res = 0.09833333333333334")
-print("2. Res = 0.09833333333333334")
-print("3. Res = 0.1133333333333333")
-print("4. Res = ")
-print("5. Res = ")
-print(generalDissatisfaction(E, A))
