@@ -1,75 +1,77 @@
 from classes import Subject, Student, Request
 from functions import dissatisfaction, generalDissatisfaction
-
-# Materias
-s1 = Subject("m1", 3)
-s2 = Subject("m2", 4)
-s3 = Subject("m3", 2)
-M = [s1, s2, s3]
-
-# Estudiantes
-# Estudiante 1
-r1 = Request("m1", 5)
-r2 = Request("m2", 2)
-r3 = Request("m3", 1)
-st1 = Student("e1", [r1, r2, r3])
-
-# Estudiante 2
-r4 = Request("m1", 4)
-r5 = Request("m2", 1)
-r6 = Request("m3", 3)
-st2 = Student("e2", [r4, r5, r6])
-
-# Estudiante 3
-r7 = Request("m2", 3)
-r8 = Request("m3", 2)
-st3 = Student("e3", [r7, r8])
-
-# Estudiante 4
-r9 = Request("m1", 2)
-r10 = Request("m3", 3)
-st4 = Student("e4", [r9, r10])
-
-# Estudiante 5
-r11 = Request("m1", 3)
-r12 = Request("m2", 2)
-r13 = Request("m3", 3)
-st5 = Student("e5", [r11, r12, r13])
-
-# Lista de estudiantes
-E = [st1, st2, st3, st4, st5]
+from itertools import combinations
 
 
-# Estudiante 1
-a1 = Request("m1", 5)
-a2 = Request("m2", 2)
-sta1 = Student("e1", [a1, a2])
+def rocPD(j, quotas):
+    key = (j, quotas)
 
-# Estudiante 2
-a3 = Request("m1", 4)
-a4 = Request("m2", 1)
-a5 = Request("m3", 3)
-sta2 = Student("e2", [a3, a4, a5])
+    if key in store:
+        return store[key]
 
-# Estudiante 3
-a6 = Request("m2", 3)
-sta3 = Student("e3", [a6])
+    if j == len(E):
+        return (0, [])
 
-# Estudiante 4
-a7 = Request("m3", 3)
-sta4 = Student("e4", [a7])
+    student = E[j]
+    best = float("inf")
+    bestAssignation = []
 
-# Estudiante 5
-a8 = Request("m1", 3)
-a9 = Request("m2", 2)
-sta5 = Student("e5", [a8, a9])
+    # Case 1
+    noAssignDissatisfaction = dissatisfaction(student, [])
+    dissatisfactionRest, assignationRest = rocPD(j + 1, quotas)
+    best = noAssignDissatisfaction + dissatisfactionRest
+    bestAssignation = [Student(student.code, [])] + assignationRest
 
-# Lista de asignaciones
-A = [sta1, sta2, sta3, sta4, sta5]
+    requests = student.requests
 
-print("1. Res = 0.09833333333333334")
-print("2. Res = 0.09833333333333334")
-print("3. Res = 0.1133333333333333")
-print("4. Res = ")
-print("5. Res = ")
-print(generalDissatisfaction(E, A))
+    for l in range(1, len(requests) + 1):
+        for combination in combinations(requests, l):
+            newQuotas = list(quotas)
+            valid = True
+
+            for request in combination:
+                i = next(
+                    (i for i, subject in enumerate(M) if subject.code == request.code)
+                )
+
+                if newQuotas[i] <= 0:
+                    valid = False
+                    break
+
+                newQuotas[i] -= 1
+
+            if not valid:
+                continue
+
+            combinationDissatisfaction = dissatisfaction(student, combination)
+            dissatisfactionNext, assignationNext = rocPD(j + 1, tuple(newQuotas))
+            totalDissatisfaction = combinationDissatisfaction + dissatisfactionNext
+
+            if totalDissatisfaction < best:
+                best = totalDissatisfaction
+                bestAssignation = [Student(student.code, combination)] + assignationNext
+
+    store[key] = (best, bestAssignation)
+
+    return store[key]
+
+
+M = [Subject("m1", 3), Subject("m2", 4), Subject("m3", 2)]
+E = [
+    Student("e1", [Request("m1", 5), Request("m2", 2), Request("m3", 1)]),
+    Student("e2", [Request("m1", 4), Request("m2", 1), Request("m3", 3)]),
+    Student("e3", [Request("m2", 3), Request("m3", 2)]),
+    Student("e4", [Request("m1", 2), Request("m3", 3)]),
+    Student("e5", [Request("m1", 3), Request("m2", 2), Request("m3", 3)]),
+]
+
+store = {}
+
+initial_cupos = tuple(m.quota for m in M)
+
+min_dissatisfaction, best_assignments = rocPD(0, initial_cupos)
+
+print(f"\nInconformidad mínima total: {min_dissatisfaction:.4f}\n")
+for student, assigned in zip(E, best_assignments):
+    codes = [req.code for req in assigned.requests]
+    print(f"{student.code}: {codes}")
