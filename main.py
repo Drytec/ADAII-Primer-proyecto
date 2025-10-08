@@ -72,12 +72,10 @@ def rocPD(subjects, students):
     return solve(0, initial_quotas)
 
 
-def write_result_file(test_number, students, assignments, total_cost):
+def write_result_file(test_number, students, assignments):
     RESULTS_DIR.mkdir(exist_ok=True)
 
-    general_cost = (
-        generalDissatisfaction(students, assignments) if students else 0.0
-    )
+    general_cost = generalDissatisfaction(students, assignments) if students else 0.0
 
     lines = [f"{general_cost:.4f}"]
 
@@ -110,4 +108,5 @@ if __name__ == "__main__":
 
         subjects, students = parse_test_file(f"tests/Prueba{test}.txt")
         cost, assignments = rocPD(subjects, students)
-        write_result_file(test, students, assignments, cost)
+        write_result_file(test, students, assignments)
+
