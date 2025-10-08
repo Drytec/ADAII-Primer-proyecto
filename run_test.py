@@ -3,14 +3,14 @@
 import sys
 
 from parser import parse_test_file
-from main import solve_roc_pd, write_result_file
+from main import rocPD, write_result_file
 
 
 def run_test_case(input_path: str, test_number: int):
     """Ejecuta el algoritmo sobre un archivo de prueba y genera la salida."""
 
     subjects, students = parse_test_file(input_path)
-    cost, assignments = solve_roc_pd(subjects, students)
+    cost, assignments = rocPD(subjects, students)
     return write_result_file(test_number, students, assignments, cost)
 
 

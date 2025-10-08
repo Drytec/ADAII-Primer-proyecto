@@ -9,82 +9,75 @@ from parser import parse_test_file
 RESULTS_DIR = Path("results")
 
 
-# j: student iter
-# l: request iter
-# i: subject iter
-def rocPD(j, quotas):
-    key = (j, quotas)
+def rocPD(subjects, students):
+    store = {}
+    initial_quotas = tuple(subject.quota for subject in subjects)
 
-    if key in store:
+    def solve(j, quotas):
+        key = (j, quotas)
+
+        if j == len(students):
+            return 0, []
+
+        if key in store:
+            return store[key]
+
+        student = students[j]
+        best_cost = float("inf")
+        best_assignments = []
+
+        no_assign_cost = dissatisfaction(student, [])
+        rest_cost, rest_assignments = solve(j + 1, quotas)
+        best_cost = no_assign_cost + rest_cost
+        best_assignments = [Student(student.code, [])] + rest_assignments
+
+        for l in range(1, len(student.requests) + 1):
+            for combination in combinations(student.requests, l):
+                new_quotas = list(quotas)
+                valid = True
+
+                for request in combination:
+                    idx = next(
+                        (
+                            idx
+                            for idx, subject in enumerate(subjects)
+                            if subject.code == request.code
+                        ),
+                        None,
+                    )
+
+                    if idx is None or new_quotas[idx] <= 0:
+                        valid = False
+                        break
+
+                    new_quotas[idx] -= 1
+
+                if not valid:
+                    continue
+
+                combination_list = list(combination)
+                dissat_cost = dissatisfaction(student, combination_list)
+                rest_cost, rest_assignments = solve(j + 1, tuple(new_quotas))
+                total_cost = dissat_cost + rest_cost
+
+                if total_cost < best_cost:
+                    best_cost = total_cost
+                    best_assignments = [
+                        Student(student.code, combination_list)
+                    ] + rest_assignments
+
+        store[key] = (best_cost, best_assignments)
         return store[key]
 
-    if j == len(E):
-        return (0, [])
-
-    student = E[j]
-    best = float("inf")
-    bestAssignation = []
-
-    # Case 1
-    noAssignDissatisfaction = dissatisfaction(student, [])
-    dissatisfactionRest, assignationRest = rocPD(j + 1, quotas)
-    best = noAssignDissatisfaction + dissatisfactionRest
-    bestAssignation = [Student(student.code, [])] + assignationRest
-
-    requests = student.requests
-
-    # Case 2
-    for l in range(1, len(requests) + 1):
-        for combination in combinations(requests, l):
-            newQuotas = list(quotas)
-            valid = True
-
-            for request in combination:
-                i = next(
-                    (i for i, subject in enumerate(M) if subject.code == request.code)
-                )
-
-                if newQuotas[i] <= 0:
-                    valid = False
-                    break
-
-                newQuotas[i] -= 1
-
-            if not valid:
-                continue
-
-            combination_list = list(combination)
-            combinationDissatisfaction = dissatisfaction(student, combination_list)
-            dissatisfactionNext, assignationNext = rocPD(j + 1, tuple(newQuotas))
-            totalDissatisfaction = combinationDissatisfaction + dissatisfactionNext
-
-            if totalDissatisfaction < best:
-                best = totalDissatisfaction
-                bestAssignation = [Student(student.code, combination_list)] + assignationNext
-
-    store[key] = (best, bestAssignation)
-
-    return store[key]
-
-
-def solve_roc_pd(subjects, students):
-    global M, E, store
-
-    M = subjects
-    E = students
-    store = {}
-    quotas = tuple(subject.quota for subject in M)
-
-    return rocPD(0, quotas)
+    return solve(0, initial_quotas)
 
 
 def write_result_file(test_number, students, assignments, total_cost):
     RESULTS_DIR.mkdir(exist_ok=True)
 
-    if students:
-        general_cost = generalDissatisfaction(students, assignments)
-    else:
-        general_cost = 0.0
+    general_cost = (
+        generalDissatisfaction(students, assignments) if students else 0.0
+    )
 
     lines = [f"{general_cost:.4f}"]
 
@@ -115,7 +108,6 @@ if __name__ == "__main__":
             )
         )
 
-    subjects, students = parse_test_file(f"tests/Prueba{test}.txt")
-    cost, assignments = solve_roc_pd(subjects, students)
-    output_path = write_result_file(test, students, assignments, cost)
-    print(f"Resultado generado en: {output_path}")
+        subjects, students = parse_test_file(f"tests/Prueba{test}.txt")
+        cost, assignments = rocPD(subjects, students)
+        write_result_file(test, students, assignments, cost)
