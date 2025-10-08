@@ -1,8 +1,12 @@
 from classes import Subject, Student, Request
 from functions import dissatisfaction, generalDissatisfaction
 from itertools import combinations
+from parser import parse_test_file
 
 
+# j: student iter
+# l: request iter
+# i: subject iter
 def rocPD(j, quotas):
     key = (j, quotas)
 
@@ -14,7 +18,7 @@ def rocPD(j, quotas):
 
     student = E[j]
     best = float("inf")
-    bestAssignation = []
+    bestAssignation = None
 
     # Case 1
     noAssignDissatisfaction = dissatisfaction(student, [])
@@ -24,6 +28,7 @@ def rocPD(j, quotas):
 
     requests = student.requests
 
+    # Case 2
     for l in range(1, len(requests) + 1):
         for combination in combinations(requests, l):
             newQuotas = list(quotas)
@@ -56,22 +61,23 @@ def rocPD(j, quotas):
     return store[key]
 
 
-M = [Subject("m1", 3), Subject("m2", 4), Subject("m3", 2)]
-E = [
-    Student("e1", [Request("m1", 5), Request("m2", 2), Request("m3", 1)]),
-    Student("e2", [Request("m1", 4), Request("m2", 1), Request("m3", 3)]),
-    Student("e3", [Request("m2", 3), Request("m3", 2)]),
-    Student("e4", [Request("m1", 2), Request("m3", 3)]),
-    Student("e5", [Request("m1", 3), Request("m2", 2), Request("m3", 3)]),
-]
+if __name__ == "__main__":
+    print("1. rocFB \n2. rocV \n3. rocPD")
+    option = int(input("\nDígite una opción: "))
 
-store = {}
+    if option == 1:
+        pass
+    elif option == 2:
+        pass
+    elif option == 3:
+        test = int(
+            input(
+                "\nDigite el número del test a ejecutar (acorde a la batería de pruebas): "
+            )
+        )
 
-initial_cupos = tuple(m.quota for m in M)
-
-min_dissatisfaction, best_assignments = rocPD(0, initial_cupos)
-
-print(f"\nInconformidad mínima total: {min_dissatisfaction:.4f}\n")
-for student, assigned in zip(E, best_assignments):
-    codes = [req.code for req in assigned.requests]
-    print(f"{student.code}: {codes}")
+        M, E = parse_test_file(f"tests/Prueba{test}.txt")
+        store = {}
+        quotas = tuple(subject.quota for subject in M)
+        cost, A = rocPD(0, quotas)
+        print(cost / len(A))
