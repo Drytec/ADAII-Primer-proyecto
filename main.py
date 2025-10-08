@@ -7,58 +7,58 @@ from parser import parse_test_file
 # j: student iter
 # l: request iter
 # i: subject iter
-def rocPD(j, quotas):
-    key = (j, quotas)
+def rocPD2(M, E):
+    store = {}
+    quotas = tuple(subject.quota for subject in M)
 
-    if key in store:
+    def F(j, quotas):
+        key = (j, quotas)
+
+        if j == len(E):
+            return 0, []
+
+        if key in store:
+            return store[key]
+
+        student = E[j]
+        bestCost = float("inf")
+        bestAssignments = []
+
+        for l in range(0, len(student.requests) + 1):
+            for combination in combinations(student.requests, l):
+                newQuotas = list(quotas)
+                valid = True
+
+                for request in combination:
+                    i = next(
+                        (
+                            i
+                            for i, subject in enumerate(M)
+                            if subject.code == request.code
+                        )
+                    )
+                    if newQuotas[i] <= 0:
+                        valid = False
+                        break
+                    newQuotas[i] -= 1
+
+                if not valid:
+                    continue
+
+                dissat = dissatisfaction(student, combination)
+                restCost, restAssignments = F(j + 1, tuple(newQuotas))
+                totalCost = dissat + restCost
+
+                if totalCost < bestCost:
+                    bestCost = totalCost
+                    bestAssignments = [
+                        Student(student.code, list(combination))
+                    ] + restAssignments
+
+        store[key] = (bestCost, bestAssignments)
         return store[key]
 
-    if j == len(E):
-        return (0, [])
-
-    student = E[j]
-    best = float("inf")
-    bestAssignation = None
-
-    # Case 1
-    noAssignDissatisfaction = dissatisfaction(student, [])
-    dissatisfactionRest, assignationRest = rocPD(j + 1, quotas)
-    best = noAssignDissatisfaction + dissatisfactionRest
-    bestAssignation = [Student(student.code, [])] + assignationRest
-
-    requests = student.requests
-
-    # Case 2
-    for l in range(1, len(requests) + 1):
-        for combination in combinations(requests, l):
-            newQuotas = list(quotas)
-            valid = True
-
-            for request in combination:
-                i = next(
-                    (i for i, subject in enumerate(M) if subject.code == request.code)
-                )
-
-                if newQuotas[i] <= 0:
-                    valid = False
-                    break
-
-                newQuotas[i] -= 1
-
-            if not valid:
-                continue
-
-            combinationDissatisfaction = dissatisfaction(student, combination)
-            dissatisfactionNext, assignationNext = rocPD(j + 1, tuple(newQuotas))
-            totalDissatisfaction = combinationDissatisfaction + dissatisfactionNext
-
-            if totalDissatisfaction < best:
-                best = totalDissatisfaction
-                bestAssignation = [Student(student.code, combination)] + assignationNext
-
-    store[key] = (best, bestAssignation)
-
-    return store[key]
+    return F(0, quotas)
 
 
 if __name__ == "__main__":
@@ -77,7 +77,5 @@ if __name__ == "__main__":
         )
 
         M, E = parse_test_file(f"tests/Prueba{test}.txt")
-        store = {}
-        quotas = tuple(subject.quota for subject in M)
-        cost, A = rocPD(0, quotas)
+        cost, A = rocPD(M, E)
         print(cost / len(A))
