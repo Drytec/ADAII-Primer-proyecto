@@ -4,6 +4,7 @@ from pathlib import Path
 from classes import Student
 from functions import dissatisfaction, generalDissatisfaction
 from parser import parse_test_file
+from brute_force_of import rocFB
 
 
 RESULTS_DIR = Path("results")
@@ -96,7 +97,15 @@ if __name__ == "__main__":
     option = int(input("\nDígite una opción: "))
 
     if option == 1:
-        pass
+        test = int(
+            input(
+                "\nDigite el número del test a ejecutar (acorde a la batería de pruebas): "
+            )
+        )
+
+        subjects, students = parse_test_file(f"tests/Prueba{test}.txt")
+        cost, assignments = rocFB(subjects, students)
+        write_result_file(test, students, assignments)
     elif option == 2:
         pass
     elif option == 3:
@@ -109,4 +118,3 @@ if __name__ == "__main__":
         subjects, students = parse_test_file(f"tests/Prueba{test}.txt")
         cost, assignments = rocPD(subjects, students)
         write_result_file(test, students, assignments)
-
