@@ -6,6 +6,7 @@ from functions import dissatisfaction, generalDissatisfaction
 from parser import parse_test_file
 from brute_force import rocFB
 
+from voraz import rocV
 
 RESULTS_DIR = Path("results")
 
@@ -119,7 +120,15 @@ if __name__ == "__main__":
         cost, assignments = rocFB(subjects, students)
         write_result_file(test, students, assignments, "FB")
     elif option == 2:
-        pass
+        test = int(
+            input(
+                "\nDigite el número del test a ejecutar (acorde a la batería de pruebas): "
+            )
+        )
+
+        subjects, students = parse_test_file(f"tests/Prueba{test}.txt")
+        cost, assignments = rocV(students,subjects)
+        write_result_file(test, students, assignments)
     elif option == 3:
         test = int(
             input(
