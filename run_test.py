@@ -11,7 +11,7 @@ def run_test_case(input_path: str, test_number: int):
 
     subjects, students = parse_test_file(input_path)
     cost, assignments = rocPD(subjects, students)
-    return write_result_file(test_number, students, assignments, cost)
+    return write_result_file(test_number, students, assignments, "PD")
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ from classes import Student
 from functions import dissatisfaction, generalDissatisfaction
 from parser import parse_test_file
 from brute_force import rocFB
+
 from voraz import rocV
 
 RESULTS_DIR = Path("results")
@@ -73,7 +74,19 @@ def rocPD(subjects, students):
     return solve(0, initial_quotas)
 
 
-def write_result_file(test_number, students, assignments):
+def write_result_file(test_number, students, assignments, algorithm_suffix):
+    """
+    Escribe el archivo de resultados con el formato especificado.
+    
+    Args:
+        test_number: Número del test
+        students: Lista de estudiantes originales
+        assignments: Lista de asignaciones resultado del algoritmo
+        algorithm_suffix: Sufijo del algoritmo ('FB', 'V', o 'PD')
+    
+    Returns:
+        Path: Ruta del archivo generado
+    """
     RESULTS_DIR.mkdir(exist_ok=True)
 
     general_cost = generalDissatisfaction(students, assignments) if students else 0.0
@@ -86,7 +99,7 @@ def write_result_file(test_number, students, assignments):
         for request in assigned_requests:
             lines.append(request.code)
 
-    output_path = RESULTS_DIR / f"Result{test_number}.txt"
+    output_path = RESULTS_DIR / f"Result{test_number}{algorithm_suffix}.txt"
     output_path.write_text("\n".join(lines), encoding="utf-8")
 
     return output_path
@@ -105,7 +118,7 @@ if __name__ == "__main__":
 
         subjects, students = parse_test_file(f"tests/Prueba{test}.txt")
         cost, assignments = rocFB(subjects, students)
-        write_result_file(test, students, assignments)
+        write_result_file(test, students, assignments, "FB")
     elif option == 2:
         test = int(
             input(
@@ -125,4 +138,4 @@ if __name__ == "__main__":
 
         subjects, students = parse_test_file(f"tests/Prueba{test}.txt")
         cost, assignments = rocPD(subjects, students)
-        write_result_file(test, students, assignments)
+        write_result_file(test, students, assignments, "PD")
