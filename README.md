@@ -1,23 +1,25 @@
-# Proyecto ADA - Sistema de Asignación de Materias
+# Proyecto I - Asignación Óptima de Cursos (ROC)
 
 ## Descripción del Proyecto
 
-Sistema de asignación óptima de materias a estudiantes, minimizando la insatisfacción general. El proyecto implementa dos algoritmos:
-- **ROC-PD**: Algoritmo óptimo usando Programación Dinámica
-- **ROC-V**: Algoritmo voraz (heurístico)
+Sistema de asignación óptima de materias a estudiantes, minimizando la insatisfacción general. El proyecto implementa tres algoritmos de solución:
+- **rocFB**: Fuerza Bruta - Solución óptima exhaustiva
+- **rocV**: Voraz (Greedy) - Solución heurística rápida
+- **rocPD**: Programación Dinámica - Solución óptima con memoización
 
 ## Estructura del Proyecto
 
 ```
 ADAII-Primer-proyecto/
-├── classes.py              # Clases principales: Subject, Student, Request
-├── functions.py            # Funciones de cálculo de insatisfacción
-├── main.py                 # Implementación ROC-PD (Programación Dinámica)
-├── ADA.py                  # Implementación ROC-V (Voraz)
-├── ADA_class.py            # Clases alternativas para ROC-V
-├── parser.py               # ⭐ Parser para leer archivos de prueba
-├── integration_example.py  # Ejemplo completo de uso
-└── test_input.txt          # Archivo de prueba generado
+├── main.py                    # ⭐ Menú principal y orquestador
+├── brute_force.py             # Algoritmo rocFB (Fuerza Bruta)
+├── voraz.py                   # Algoritmo rocV (Voraz)
+├── programacion_dinamica.py   # Algoritmo rocPD (Programación Dinámica)
+├── parser.py                  # Parser para leer archivos de prueba
+├── classes.py                 # Clases: Subject, Student, Request
+├── functions.py               # Funciones de cálculo de insatisfacción
+├── tests/                     # Batería de pruebas (Prueba1.txt - Prueba46.txt)
+└── results/                   # Archivos de salida generados
 ```
 
 ## Clases Principales
@@ -35,9 +37,44 @@ ADAII-Primer-proyecto/
 - `code`: Código de la materia solicitada
 - `priority`: Prioridad (1-5, mayor = más importante)
 
-## Formato de Entrada
+## 🚀 Ejecución del Programa
 
-El parser acepta archivos con el siguiente formato:
+### Comando Principal
+```bash
+python main.py
+```
+
+### Menú Interactivo
+```
+1. rocFB 
+2. rocV 
+3. rocPD
+
+Dígite una opción: [1, 2 o 3]
+Digite el número del test a ejecutar: [1-46]
+```
+
+### Ejemplos de Uso
+```bash
+# Ejecutar Fuerza Bruta con Prueba 1
+python main.py
+> 1
+> 1
+
+# Ejecutar Voraz con Prueba 5
+python main.py
+> 2
+> 5
+
+# Ejecutar Programación Dinámica con Prueba 10
+python main.py
+> 3
+> 10
+```
+
+## 📄 Formato de Archivos
+
+### Formato de Entrada (tests/PruebaX.txt)
 
 ```
 <número_de_materias>
@@ -49,12 +86,9 @@ El parser acepta archivos con el siguiente formato:
 <código_materia>,<prioridad>
 <código_materia>,<prioridad>
 ...
-<código_estudiante>,<número_solicitudes>
-<código_materia>,<prioridad>
-...
 ```
 
-### Ejemplo:
+#### Ejemplo (Prueba1.txt):
 ```
 3
 1000,1
@@ -79,50 +113,40 @@ El parser acepta archivos con el siguiente formato:
 1002,1
 ```
 
-## Uso del Parser
+### Formato de Salida (results/ResultXYZ.txt)
 
-### Opción 1: Parsear desde archivo
+Los archivos de salida siguen el formato especificado en la sección 3.4.2 del documento del proyecto:
 
-```python
-from parser import parse_test_file, print_parsed_data
-
-subjects, students = parse_test_file('test_input.txt')
-print_parsed_data(subjects, students)
+```
+<costo_insatisfacción_general>
+<código_estudiante>,<cantidad_materias_asignadas>
+<código_materia_1>
+<código_materia_2>
+...
+<código_estudiante>,<cantidad_materias_asignadas>
+<código_materia_1>
+...
 ```
 
-### Opción 2: Parsear desde string
+**Nomenclatura de archivos:**
+- `ResultXFB.txt` - Resultado de Fuerza Bruta para test X
+- `ResultXV.txt` - Resultado de Voraz para test X
+- `ResultXPD.txt` - Resultado de Programación Dinámica para test X
 
-```python
-from parser import parse_test_string
-
-test_data = """3
-1000,1
-1001,4
-1002,3
-2
+#### Ejemplo (Result1PD.txt):
+```
+0.2500
 100,2
-1000,1
-1001,2
+1001
+1002
 101,1
-1002,1"""
-
-subjects, students = parse_test_string(test_data)
-```
-
-### Opción 3: Ejemplo completo con algoritmo
-
-```python
-from parser import parse_test_file
-from integration_example import run_roc_pd_algorithm, print_results
-
-# Parsear datos
-subjects, students = parse_test_file('test_input.txt')
-
-# Ejecutar algoritmo
-min_dissatisfaction, best_assignments = run_roc_pd_algorithm(subjects, students)
-
-# Mostrar resultados
-print_results(subjects, students, min_dissatisfaction, best_assignments)
+1002
+102,0
+103,2
+1001
+1000
+104,1
+1000
 ```
 
 ## Función de Insatisfacción
@@ -140,97 +164,85 @@ Donde:
 
 La insatisfacción general es el promedio de las insatisfacciones individuales.
 
-## Algoritmos
+## 🧮 Algoritmos Implementados
 
-### ROC-PD (Programación Dinámica)
-- **Archivo**: `main.py` o `integration_example.py`
-- **Complejidad**: Exponencial, pero con memoización
-- **Ventaja**: Encuentra la solución óptima
-- **Desventaja**: Puede ser lento para instancias grandes
+### 1. rocFB - Fuerza Bruta
+- **Archivo**: `brute_force.py`
+- **Método**: Genera todas las combinaciones posibles de asignaciones
+- **Complejidad**: Exponencial O(2^n)
+- **Ventaja**: Garantiza encontrar la solución óptima
+- **Desventaja**: Muy lento para instancias grandes
+- **Uso**: Ideal para verificar correctitud en tests pequeños
 
-### ROC-V (Voraz)
-- **Archivo**: `ADA.py`
-- **Complejidad**: O(n²)
-- **Ventaja**: Rápido
+### 2. rocV - Voraz (Greedy)
+- **Archivo**: `voraz.py`
+- **Método**: Asignación por ponderación de prioridades
+- **Complejidad**: O(k × r) donde k=materias, r=estudiantes
+- **Ventaja**: Muy rápido, escalable
 - **Desventaja**: No garantiza solución óptima
+- **Uso**: Ideal para instancias grandes donde se necesita rapidez
 
-## Ejecución
+### 3. rocPD - Programación Dinámica
+- **Archivo**: `programacion_dinamica.py`
+- **Método**: Recursión con memoización
+- **Complejidad**: Exponencial, pero optimizado con cache
+- **Ventaja**: Solución óptima más rápida que Fuerza Bruta
+- **Desventaja**: Alto uso de memoria para instancias grandes
+- **Uso**: Balance entre optimalidad y rendimiento
 
-### Ejecutar el parser solo:
-```bash
-python parser.py
-```
+## 📊 Función de Insatisfacción
 
-### Ejecutar ejemplo completo:
-```bash
-python integration_example.py
-```
-
-### Ejecutar algoritmo ROC-PD original:
-```bash
-python main.py
-```
-
-### Ejecutar algoritmo ROC-V:
-```bash
-python ADA.py
-```
-
-## Funciones del Parser
-
-### `parse_test_file(filename)`
-Lee un archivo y retorna tupla `(subjects, students)`.
-
-### `parse_test_string(test_string)`
-Parsea un string con los datos y retorna tupla `(subjects, students)`.
-
-### `parse_test_data(lines)`
-Parsea una lista de líneas y retorna tupla `(subjects, students)`.
-
-### `print_parsed_data(subjects, students)`
-Imprime los datos parseados de forma legible.
-
-## Ejemplo de Salida
+La insatisfacción de un estudiante se calcula como:
 
 ```
-============================================================
-RESULTADOS DE LA ASIGNACIÓN
-============================================================
-
-📊 Inconformidad mínima total: 0.8833
-📊 Inconformidad promedio: 0.1767
-
-📋 ASIGNACIONES:
-------------------------------------------------------------
-Estudiante 100: ['1001']
-Estudiante 101: ['1002']
-Estudiante 102: ['1002']
-Estudiante 103: ['1001', '1002']
-Estudiante 104: ['1000']
-
-📈 ESTADÍSTICAS:
-------------------------------------------------------------
-Total de solicitudes: 11
-Total de asignaciones: 6
-Tasa de asignación: 54.55%
-
-📚 CUPOS UTILIZADOS:
-------------------------------------------------------------
-Materia 1000: 1/1 cupos utilizados
-Materia 1001: 2/4 cupos utilizados
-Materia 1002: 3/3 cupos utilizados
+I(e, A_e) = (1 - |A_e|/|S_e|) × (1 - Σ(prioridades_asignadas) / capacidad_total)
 ```
 
-## Autores
+Donde:
+- `|A_e|`: Número de materias asignadas al estudiante
+- `|S_e|`: Número de solicitudes del estudiante
+- `capacidad_total`: Suma de todas las prioridades del estudiante
 
-- Algoritmo ROC-PD: [Compañero 1]
-- Algoritmo ROC-V: [Compañero 2]
-- Parser: [Tu nombre]
-- Funciones base: [Equipo]
+**Insatisfacción General**: Promedio de las insatisfacciones individuales de todos los estudiantes.
 
-## Notas
+## 🔧 Uso Programático
 
+### Importar y usar el parser
+```python
+from parser import parse_test_file
+
+subjects, students = parse_test_file("tests/Prueba1.txt")
+```
+
+### Ejecutar un algoritmo específico
+```python
+from brute_force import rocFB
+from voraz import rocV
+from programacion_dinamica import rocPD
+from parser import parse_test_file
+from main import write_result_file
+
+# Parsear test
+subjects, students = parse_test_file("tests/Prueba1.txt")
+
+# Ejecutar algoritmo deseado
+cost, assignments = rocPD(subjects, students)
+
+# Guardar resultado
+write_result_file(1, students, assignments, "PD")
+```
+
+## 📝 Notas Técnicas
+
+- Los archivos de test están en la carpeta `tests/` (Prueba1.txt a Prueba46.txt)
+- Los resultados se guardan automáticamente en la carpeta `results/`
 - El parser valida automáticamente el formato de entrada
-- Las líneas vacías son ignoradas
-- Los espacios en blanco se eliminan automáticamente
-- El parser es compatible con ambos algoritmos (ROC-PD y ROC-V)
+- Las líneas vacías y espacios en blanco son ignorados
+- Todos los algoritmos reciben parámetros en el mismo orden: `(subjects, students)`
+
+## 👥 Equipo
+
+- Parser e integración:Jose Armando Martínez Hernández - 2325365
+- Algoritmo rocFB: [Compañero]
+- Algoritmo rocV: [Compañero]
+- Algoritmo rocPD: [Compañero/Líder]

@@ -1,3 +1,5 @@
+from itertools import combinations
+
 from classes import Student
 from functions import dissatisfaction
 
