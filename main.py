@@ -63,8 +63,8 @@ if __name__ == "__main__":
         )
 
         subjects, students = parse_test_file(f"tests/Prueba{test}.txt")
-        cost, assignments = rocV(students,subjects)
-        write_result_file(test, students, assignments)
+        cost, assignments = rocV(subjects, students)
+        write_result_file(test, students, assignments, "V")
     elif option == 3:
         test = int(
             input(

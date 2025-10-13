@@ -1,1 +1,42 @@
+# Resultados generados por el programa
 results/*
+
+# Entorno virtual de Python
+.venv/
+venv/
+env/
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Archivos de distribución
+*.egg
+*.egg-info/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Jupyter Notebooks (si los usan)
+.ipynb_checkpoints/
+
+# Archivos de prueba temporales
+*.tmp
+*.log
+
+# Mantener la estructura de carpetas pero ignorar contenido
+results/.gitkeep
+!results/.gitkeep
