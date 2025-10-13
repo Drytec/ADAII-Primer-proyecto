@@ -39,7 +39,7 @@ def dissatisfaction(assignments, students, i):
     return subject_diff * avg_dissatisfaction
 
 
-def rocV(students, subjects):
+def rocV(subjects, students):
     """
     Implementación del algoritmo voraz ROCV.
     Devuelve:
