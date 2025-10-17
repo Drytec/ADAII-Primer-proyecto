@@ -242,7 +242,7 @@ write_result_file(1, students, assignments, "PD")
 
 ## 👥 Equipo
 
-- Parser e integración:Jose Armando Martínez Hernández - 2325365
-- Algoritmo rocFB: [Compañero]
-- Algoritmo rocV: [Compañero]
-- Algoritmo rocPD: [Compañero/Líder]
+- Parser e integración: Jose Armando Martínez Hernández - 2325365
+- Algoritmo rocFB: Nicolás Salazar Castillo 2328060-3743
+- Algoritmo rocV: Dylan Fernando Morales Rojas
+- Algoritmo rocPD: Jhorman Gomez 2326867-3743
